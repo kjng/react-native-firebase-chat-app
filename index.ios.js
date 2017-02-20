@@ -6,10 +6,12 @@ import {
   Text,
   View,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  Modal
 } from 'react-native';
 import * as firebase from 'firebase';
 import BackgroundTimer from 'react-native-background-timer';
+import moment from 'moment';
 import config from './config.js';
 
 firebase.initializeApp(config);
@@ -28,7 +30,9 @@ export default class FirebaseChatApp extends Component {
     this.state = {
       input: '',
       messages: [],
-      usersOnline: 0
+      usersOnline: 0,
+      modalVisible: true,
+      name: 'Anonymous'
     };
     this.usersOnlineRef = this.database.ref('usersOnline');
     this.messagesRef = this.database.ref('messages');
@@ -98,6 +102,23 @@ export default class FirebaseChatApp extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <Modal animationType={'slide'} transparent={true}
+          visible={this.state.modalVisible}>
+          <View style={styles.modal}>
+            <TouchableOpacity style={styles.closeButton}
+              onPress={() => this.setState({modalVisible: false})}>
+              <Text>X</Text>
+            </TouchableOpacity>
+            <Text>What's your name?</Text>
+            <TextInput style={styles.textInput}
+              value={this.state.name}
+              onChangeText={(text) => this.setState({name: text})}
+            ></TextInput>
+            <TouchableOpacity style={styles.submitButton} onPress={() => {this.setState({modalVisible: false})}}>
+              <Text style={styles.buttonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
         <View style={styles.header}>
           <Text style={styles.labelText}>
             Users Online: {this.state.usersOnline}
@@ -171,6 +192,34 @@ const styles = StyleSheet.create({
   buttonText:{
     fontSize: 20,
     color: 'white'
+  },
+  modal: {
+    height: 150,
+    width: 300,
+    marginTop: 200,
+    padding: 10,
+    alignSelf: 'center',
+    backgroundColor: 'lightblue',
+    margin: 10,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  closeButton: {
+    alignSelf: 'flex-end'
+  },
+  submitButton: {
+    alignSelf: 'center',
+    backgroundColor: 'darkblue',
+    width: 100,
+    height: 44,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 10
+  },
+  bold: {
+    fontWeight: 'bold'
   }
 });
 
