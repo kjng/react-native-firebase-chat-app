@@ -25,18 +25,23 @@ export default class FirebaseChatApp extends Component {
   constructor(props) {
     super(props);
     this.database = firebase.database();
-    this.writeDatabase();
     this.state = {
+      input: '',
+      messages: [],
       usersOnline: 0
     };
     this.usersOnlineRef = this.database.ref('usersOnline');
+    this.messagesRef = this.database.ref('messages');
+
     this.handleAppStateChange = this.handleAppStateChange.bind(this);
+    this.sendMessage = this.sendMessage.bind(this);
 
     AppState.addEventListener('change', this.handleAppStateChange);
   }
 
   componentDidMount() {
     this.usersOnlineListener();
+    this.messagesListener();
     this.incrementUsersOnline();
   }
 
@@ -69,8 +74,25 @@ export default class FirebaseChatApp extends Component {
     });
   }
 
-  writeDatabase() {
-    this.database.ref('notes/1').set({text: 'Hello World!'});
+  messagesListener() {
+    this.messagesRef.on('value', (snapshot) => {
+      console.log('Getting new messages...');
+      if (snapshot.val() !== null) {
+        this.setState({messages: snapshot.val()});
+      }
+    });
+  }
+
+  sendMessage() {
+    console.log(this.state.input);
+    this.messagesRef.transaction((messages) => {
+      if (!messages) {
+        messages = [];
+      }
+      messages.push(this.state.input);
+      this.setState({input: ''});
+      return messages;
+    });
   }
 
   render() {
@@ -82,11 +104,19 @@ export default class FirebaseChatApp extends Component {
           </Text>
         </View>
         <View style={styles.content}>
+          {this.state.messages.map((message, i) => {
+            return (
+              <Text key={i}>{message}</Text>
+            );
+          })}
         </View>
         <View style={styles.footer}>
-          <TextInput style={styles.textInput} />
+          <TextInput style={styles.textInput}
+            value={this.state.input}
+            onChangeText={(text) => this.setState({input: text})}
+          />
           <TouchableOpacity style={styles.button}
-            onPress={this.sendChat}>
+            onPress={this.sendMessage}>
             <Text style={styles.buttonText}>
               Send
             </Text>
@@ -118,14 +148,15 @@ const styles = StyleSheet.create({
   },
   footer:{
     height: 50,
-    backgroundColor: 'yellow',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    padding: 5
   },
   textInput:{
     flex:1,
     backgroundColor: 'white',
     borderWidth: 1,
-    borderRadius: 5
+    borderRadius: 5,
+    paddingLeft: 10
   },
   button:{
     width: 100,
@@ -134,7 +165,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginLeft: 5
   },
   buttonText:{
     fontSize: 20,
