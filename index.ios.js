@@ -9,6 +9,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import * as firebase from 'firebase';
+import BackgroundTimer from 'react-native-background-timer';
 import config from './config.js';
 
 firebase.initializeApp(config);
@@ -28,7 +29,44 @@ export default class FirebaseChatApp extends Component {
     this.state = {
       usersOnline: 0
     };
-    AppState.addEventListener('change', () => { console.log(AppState.currentState) })
+    this.usersOnlineRef = this.database.ref('usersOnline');
+    this.handleAppStateChange = this.handleAppStateChange.bind(this);
+
+    AppState.addEventListener('change', this.handleAppStateChange);
+  }
+
+  componentDidMount() {
+    this.usersOnlineListener();
+    this.incrementUsersOnline();
+  }
+
+  handleAppStateChange() {
+    console.log('AppState', AppState.currentState);
+    var currentState = AppState.currentState;
+    if (currentState === 'active') {
+      this.incrementUsersOnline();
+    } else if (currentState === 'inactive') {
+      BackgroundTimer.setTimeout(() => this.decrementUsersOnline(), 0);
+    }
+  }
+
+  incrementUsersOnline() {
+    this.usersOnlineRef.once('value', (snapshot) => {
+      this.usersOnlineRef.set(snapshot.val() + 1);
+    });
+  }
+
+  decrementUsersOnline() {
+    this.usersOnlineRef.once('value', (snapshot) => {
+      this.usersOnlineRef.set(snapshot.val() - 1);
+    });
+  }
+
+  usersOnlineListener() {
+    this.usersOnlineRef.on('value', (snapshot) => {
+      console.log('UsersOnline Change', snapshot.val());
+      this.setState({usersOnline: snapshot.val()});
+    });
   }
 
   writeDatabase() {
@@ -62,7 +100,45 @@ export default class FirebaseChatApp extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5FCFF'
+    paddingTop: 20
+  },
+  content:{
+    padding: 10,
+    flex:1,
+  },
+  labelText:{
+    fontSize: 20
+  },
+  header:{
+    justifyContent:'center',
+    alignItems: 'center',
+    height: 50,
+    padding: 5,
+    backgroundColor: '#dddddd'
+  },
+  footer:{
+    height: 50,
+    backgroundColor: 'yellow',
+    flexDirection: 'row'
+  },
+  textInput:{
+    flex:1,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderRadius: 5
+  },
+  button:{
+    width: 100,
+    backgroundColor: 'darkblue',
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  buttonText:{
+    fontSize: 20,
+    color: 'white'
   }
 });
 
