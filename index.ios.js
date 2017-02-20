@@ -10,7 +10,24 @@ import config from './config.js';
 
 firebase.initializeApp(config);
 
+// All firebase database data is stored as json objects
+// database ref will be the key in database e.g.
+// ref 'notes/1' will be key 'notes/1'
+//
+// let database = firebase.database();
+// database.ref('notes/1').set({text: 'Hello World!'});
+
 export default class FirebaseChatApp extends Component {
+  constructor(props) {
+    super(props);
+    this.database = firebase.database();
+    this.writeDatabase();
+  }
+
+  writeDatabase() {
+    this.database.ref('notes/1').set({text: 'Hello World!'});
+  }
+
   render() {
     return (
       <View style={styles.container}>
