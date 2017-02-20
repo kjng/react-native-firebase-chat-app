@@ -11,8 +11,7 @@
     "moment": "^2.17.1",
     "react": "~15.4.0",
     "react-native": "0.41.2",
-    "react-native-background-timer": "^1.0.0",
-    "react-native-firestack": "^2.3.9"
+    "react-native-background-timer": "^1.0.0"
   },
   "devDependencies": {
     "babel-jest": "18.0.0",
