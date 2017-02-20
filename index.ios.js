@@ -93,7 +93,11 @@ export default class FirebaseChatApp extends Component {
       if (!messages) {
         messages = [];
       }
-      messages.push(this.state.input);
+      messages.push({
+        name: this.state.name,
+        message: this.state.input,
+        timestamp: new Date().getTime()
+      });
       this.setState({input: ''});
       return messages;
     });
@@ -121,13 +125,21 @@ export default class FirebaseChatApp extends Component {
         </Modal>
         <View style={styles.header}>
           <Text style={styles.labelText}>
-            Users Online: {this.state.usersOnline}
+            Hello {this.state.name}! Users Online: {this.state.usersOnline}
           </Text>
         </View>
         <View style={styles.content}>
-          {this.state.messages.map((message, i) => {
+          {this.state.messages.map((obj, i) => {
             return (
-              <Text key={i}>{message}</Text>
+              <View key={i}>
+                <View style={styles.chatMeta}>
+                  <Text style={styles.bold}>{obj.name || 'Anonymous'}</Text>
+                  <Text> ({moment(obj.when).fromNow()})</Text>
+                </View>
+                <View style={styles.message}>
+                  <Text style={styles.messageText}>{obj.message}</Text>
+                </View>
+              </View>
             );
           })}
         </View>
@@ -220,7 +232,18 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: 'bold'
-  }
+  },
+  chatMeta: {
+    flexDirection: 'row'
+  },
+  message: {
+    backgroundColor: 'grey',
+    borderRadius: 10,
+    padding: 5
+  },
+  messageText: {
+    color: 'white'
+  },
 });
 
 AppRegistry.registerComponent('FirebaseChatApp', () => FirebaseChatApp);
