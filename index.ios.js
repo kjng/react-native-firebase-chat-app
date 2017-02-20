@@ -51,14 +51,14 @@ export default class FirebaseChatApp extends Component {
   }
 
   incrementUsersOnline() {
-    this.usersOnlineRef.once('value', (snapshot) => {
-      this.usersOnlineRef.set(snapshot.val() + 1);
+    this.usersOnlineRef.transaction((currentUsersOnline) => {
+      return currentUsersOnline + 1;
     });
   }
 
   decrementUsersOnline() {
-    this.usersOnlineRef.once('value', (snapshot) => {
-      this.usersOnlineRef.set(snapshot.val() - 1);
+    this.usersOnlineRef.transaction((currentUsersOnline) => {
+      return currentUsersOnline > 0 ? currentUsersOnline - 1 : 0;
     });
   }
 
