@@ -5,6 +5,10 @@ import {
   Text,
   View
 } from 'react-native';
+import * as firebase from 'firebase';
+import config from './config.js';
+
+firebase.initializeApp(config);
 
 export default class FirebaseChatApp extends Component {
   render() {
