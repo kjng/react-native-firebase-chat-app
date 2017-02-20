@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import {
   AppRegistry,
+  AppState,
   StyleSheet,
   Text,
-  View
+  View,
+  TextInput,
+  TouchableOpacity
 } from 'react-native';
 import * as firebase from 'firebase';
 import config from './config.js';
@@ -22,6 +25,10 @@ export default class FirebaseChatApp extends Component {
     super(props);
     this.database = firebase.database();
     this.writeDatabase();
+    this.state = {
+      usersOnline: 0
+    };
+    AppState.addEventListener('change', () => { console.log(AppState.currentState) })
   }
 
   writeDatabase() {
@@ -31,16 +38,22 @@ export default class FirebaseChatApp extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
+        <View style={styles.header}>
+          <Text style={styles.labelText}>
+            Users Online: {this.state.usersOnline}
+          </Text>
+        </View>
+        <View style={styles.content}>
+        </View>
+        <View style={styles.footer}>
+          <TextInput style={styles.textInput} />
+          <TouchableOpacity style={styles.button}
+            onPress={this.sendChat}>
+            <Text style={styles.buttonText}>
+              Send
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -49,20 +62,8 @@ export default class FirebaseChatApp extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+    backgroundColor: '#F5FCFF'
+  }
 });
 
 AppRegistry.registerComponent('FirebaseChatApp', () => FirebaseChatApp);
